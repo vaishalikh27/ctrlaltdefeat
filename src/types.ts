@@ -6,6 +6,9 @@ export type AgentKind = 'technical' | 'fundamental' | 'sentiment'
 
 export type AgentStatus = 'idle' | 'analyzing' | 'complete'
 
+/** Whether an agent's current verdict/signals came from a live Gemini call or the built-in mock dataset. */
+export type AgentSource = 'ai' | 'mock'
+
 export type FeedStatus = 'live' | 'degraded'
 
 export type RecommendationAction = 'BUY' | 'HOLD' | 'AVOID'

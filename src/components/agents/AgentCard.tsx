@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { BarChart2, ChevronDown, LineChart, ListTree, MessageSquareText, Sparkles } from 'lucide-react'
-import type { AgentAnalysis, AgentKind, AgentStatus } from '../../types'
+import type { AgentAnalysis, AgentKind, AgentSource, AgentStatus } from '../../types'
 import { ConfidenceBar } from '../common/ConfidenceBar'
 import { StatusPill, VerdictBadge } from '../common/Badges'
 import { SourceTag } from '../common/SourceTag'
 import { Skeleton } from '../common/Skeleton'
+import { Tooltip } from '../common/Tooltip'
 
 const AGENT_META: Record<AgentKind, { title: string; icon: typeof LineChart; blurb: string }> = {
   technical: { title: 'Technical Agent', icon: LineChart, blurb: 'Price action, momentum & volume' },
@@ -16,10 +17,11 @@ interface AgentCardProps {
   kind: AgentKind
   analysis: AgentAnalysis
   status: AgentStatus
+  source: AgentSource
   degraded: boolean
 }
 
-export function AgentCard({ kind, analysis, status, degraded }: AgentCardProps) {
+export function AgentCard({ kind, analysis, status, source, degraded }: AgentCardProps) {
   const [expanded, setExpanded] = useState(false)
   const meta = AGENT_META[kind]
   const Icon = meta.icon
@@ -34,7 +36,10 @@ export function AgentCard({ kind, analysis, status, degraded }: AgentCardProps) 
             <Icon className="h-4.5 w-4.5 text-signal-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-base-100">{meta.title}</h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-sm font-bold text-base-100">{meta.title}</h3>
+              {!isLoading && <SourceBadge source={source} />}
+            </div>
             <p className="text-[11px] text-base-400">{meta.blurb}</p>
           </div>
         </div>
@@ -127,5 +132,25 @@ export function AgentCard({ kind, analysis, status, degraded }: AgentCardProps) 
         </div>
       )}
     </div>
+  )
+}
+
+function SourceBadge({ source }: { source: AgentSource }) {
+  if (source === 'ai') {
+    return (
+      <Tooltip label="This verdict and reasoning were generated live by Gemini for this stock.">
+        <span className="inline-flex items-center gap-1 rounded-full border border-bull-500/40 bg-bull-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-bull-300">
+          <Sparkles className="h-2.5 w-2.5" />
+          AI
+        </span>
+      </Tooltip>
+    )
+  }
+  return (
+    <Tooltip label="Live Gemini analysis wasn't available, so this card is showing the built-in mock reasoning.">
+      <span className="inline-flex items-center rounded-full border border-base-500/30 bg-base-700/50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-base-400">
+        Mock
+      </span>
+    </Tooltip>
   )
 }
